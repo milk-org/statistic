@@ -25,7 +25,7 @@
 #include <string.h>
 #include <time.h>
 #include <gsl/gsl_randist.h>
-#include "CLIcore.h"
+#include "CommandLineInterface/CLIcore.h"
 
 
 #include "00CORE/00CORE.h"

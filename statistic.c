@@ -96,7 +96,7 @@ int_fast8_t statistic_putgaussnoise_cli()
 void __attribute__ ((constructor)) libinit_statistic()
 {
 	init_statistic();
-	printf(" ...... Loading module %s\n", __FILE__);
+//	printf(" ...... Loading module %s\n", __FILE__);
 }
 
 

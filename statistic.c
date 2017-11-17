@@ -106,7 +106,7 @@ void __attribute__ ((constructor)) libinit_statistic()
 int_fast8_t init_statistic()
 {
   strcpy(data.module[data.NBmodule].name, __FILE__);
-  strcpy(data.module[data.NBmodule].info, "statistics functions and tools");
+  strcpy(data.module[data.NBmodule].info, "milk    - Statistics functions and tools");
   data.NBmodule++;
 
   strcpy(data.cmd[data.NBcmd].key,"putphnoise");

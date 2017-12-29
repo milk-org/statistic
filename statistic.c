@@ -42,7 +42,7 @@
 
 extern DATA data;
 
-
+static int INITSTATUS_statistic = 0;
 
 
 
@@ -95,8 +95,12 @@ int_fast8_t statistic_putgaussnoise_cli()
 
 void __attribute__ ((constructor)) libinit_statistic()
 {
-	init_statistic();
-	RegisterModule(__FILE__, "milk", "Statistics functions and tools");
+	if ( INITSTATUS_statistic == 0 )
+	{
+		init_statistic();
+		RegisterModule(__FILE__, "milk", "Statistics functions and tools");
+		INITSTATUS_statistic = 1;
+	}
 }
 
 

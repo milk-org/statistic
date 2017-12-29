@@ -96,12 +96,7 @@ int_fast8_t statistic_putgaussnoise_cli()
 void __attribute__ ((constructor)) libinit_statistic()
 {
 	init_statistic();
-
-	if(data.progStatus>0)
-	{
-		printf("  Found unloaded shared object in ./libs/ -> LOADING module %s\n", __FILE__);
-		fflush(stdout);
-	}	
+	RegisterModule(__FILE__, "milk", "Statistics functions and tools");
 }
 
 
@@ -110,11 +105,6 @@ void __attribute__ ((constructor)) libinit_statistic()
 
 int_fast8_t init_statistic()
 {
-  strcpy(data.module[data.NBmodule].name, __FILE__);
-  strcpy(data.module[data.NBmodule].package, "milk");
-  strcpy(data.module[data.NBmodule].info, "Statistics functions and tools");
-  data.NBmodule++;
-
   strcpy(data.cmd[data.NBcmd].key,"putphnoise");
   strcpy(data.cmd[data.NBcmd].module,__FILE__);
   data.cmd[data.NBcmd].fp = statistic_putphnoise_cli;

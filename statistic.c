@@ -46,6 +46,22 @@ static int INITSTATUS_statistic = 0;
 
 
 
+typedef struct
+{
+	int active;  // 1 if active, 0 otherwise
+	
+	int NBpt;    // number of points
+	float *sum;  // sum
+	float *ssum; // sum of squares
+
+	int leaf;    // 1 if leaf, 0 if non-leaf
+	long parent_index;
+	long NBchildren;
+	long *children_index;
+} BIRCHCF;
+
+
+
 
 /* =============================================================================================== */
 /* =============================================================================================== */
@@ -344,3 +360,211 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
   return(ID_out);
 }
 
+
+
+
+/**
+ * ## Purpose
+ *
+ * Apply BIRCH clustering to images
+ *
+ * ## Overview
+ * 
+ * Images input is 3D array, one image per slice\n
+ * Euclidian distance adopted\n
+ * 
+ * B is the number of branches
+ * 
+ * epsilon is the maximum distance (Euclidian)
+ * 
+ *
+ * ## Details
+ *
+ */
+
+long statistic_BIRCH_clustering(const char *IDin_name, int B, double epsilon, const char *IDout_name)
+{
+	long IDin;
+	long xsize, ysize;
+	long zsize;
+	
+	
+	
+	IDin = image_ID(IDin_name);
+	xsize = data.image[IDin].md[0].size[0];
+	ysize = data.image[IDin].md[0].size[1];
+	zsize = data.image[IDin].md[0].size[2];
+	
+	long xysize = xsize*ysize;
+	
+	BIRCHCF *BirchCFarray;
+	
+	long NBCFmax = zsize;
+	BirchCFarray = (BIRCHCF*) malloc(sizeof(BIRCHCF)*NBCFmax);
+	
+	long k;
+	for(k=0; k<NBCFmax; k++)
+	{
+		BirchCFarray[k].active = 0;
+		BirchCFarray[k].NBpt = 0;
+		
+		BirchCFarray[k].sum = (float*) malloc(sizeof(float)*xysize);
+		BirchCFarray[k].ssum = (float*) malloc(sizeof(float)*xysize);
+		
+		BirchCFarray[k].leaf = 1;
+		BirchCFarray[k].parent_index = -1;
+		
+		BirchCFarray[k].NBchildren = 0;
+		BirchCFarray[k].children_index = (long*) malloc(sizeof(long)*B);
+		
+		long kk;
+		for(kk=0;kk<B;kk++)
+			BirchCFarray[k].children_index[kk] = 0;
+	}
+	
+	
+	// first slice
+	k = 0;
+	BirchCFarray[k].active = 1;
+	BirchCFarray[k].NBpt = 1;
+	memcpy(BirchCFarray[k].sum, data.image[IDin].array.F, sizeof(float)*xysize);
+
+	long ii;
+	for(ii=0;ii<xysize;ii++)
+		BirchCFarray[k].ssum[ii] = data.image[IDin].array.F[ii]*data.image[IDin].array.F[ii];
+
+	
+	//
+	// Scan through array
+	// kin is input array index
+	//
+	long kin;
+	for(kin=1;kin<zsize;kin++)
+	{
+		k = 0; // root
+		
+		while(BirchCFarray[k].leaf == 0) // if non-leaf, find path
+		{
+			double distmin = 0.0;
+			double dist;
+			long kkmin; // path
+			
+			
+			long kk = 0;
+			for(ii=0;ii<xysize;ii++)
+			{
+				double tmpv;
+				tmpv = BirchCFarray[BirchCFarray[k].children_index[kk]].sum[ii]/BirchCFarray[BirchCFarray[k].children_index[kk]].NBpt - data.image[IDin].array.F[kin*xysize+ii];
+				distmin += tmpv*tmpv;
+			}
+			
+			for(kk=1;kk<BirchCFarray[k].NBchildren;kk++)
+			{
+				double dist = 0.0;
+				for(ii=0;ii<xysize;ii++)
+				{
+					double tmpv;
+					tmpv = BirchCFarray[BirchCFarray[k].children_index[kk]].sum[ii]/BirchCFarray[BirchCFarray[k].children_index[kk]].NBpt - data.image[IDin].array.F[kin*xysize+ii];
+					dist += tmpv*tmpv;
+				}
+				if(dist<distmin)
+				{
+					distmin = dist;
+					kkmin = kk;
+				}
+			}
+			k = kkmin;			
+		}
+		
+		
+		
+		// leaf node children point to input entries
+		if(BirchCFarray[k].leaf == 1) // If leaf node, add to leaf node
+		{
+			// Measure distance to existing 
+		
+			if(BirchCFarray[k].NBpt == B-1) // split leaf node
+			{
+				
+				// identify maximum distance pair
+				double maxdist = 0.0;
+				long kk1max, kk2max;
+				long kk1, kk2;
+				
+				for(kk1=0;kk1<BirchCFarray[k].NBpt;kk1++)
+					for(kk2=kk1+1; kk2<BirchCFarray[k].NBpt;kk2++)
+					{
+						double dist = 0.0;
+						for(ii=0;ii<xysize;ii++)
+						{
+							double tmpv;
+							tmpv = BirchCFarray[BirchCFarray[k].children_index[kk1]].sum[ii] - BirchCFarray[BirchCFarray[k].children_index[kk2]].sum[ii];
+							dist += tmpv*tmpv;
+						}
+						if(dist>maxdist)
+						{
+							kk1max = kk1;
+							kk2max = kk2;
+							maxdist = dist;
+						}
+					}
+				
+				// create two new leaf nodes
+				long k1next, k2next;
+				long ksearch = 0;
+				while(BirchCFarray[ksearch].active==1)
+					ksearch ++;
+				k1next = ksearch;
+				BirchCFarray[k1next].active = 1;
+				BirchCFarray[k1next].NBpt = 0;
+
+				while(BirchCFarray[ksearch].active==1)
+					ksearch ++;
+				k2next = ksearch;
+				BirchCFarray[k2next].active = 1;
+				BirchCFarray[k2next].NBpt = 0;
+				
+				// populate new leaf nodes
+				
+				
+				// edit source node
+				
+			}
+			else
+			{			
+				long kk = BirchCFarray[k].NBpt;
+				BirchCFarray[k].children_index[kk] = kin;			
+				BirchCFarray[k].NBpt ++;
+						
+				for(ii=0;ii<xysize;ii++)
+				{				
+					BirchCFarray[k].sum[ii] += data.image[IDin].array.F[kin*xysize+ii];
+					BirchCFarray[k].ssum[ii] += data.image[IDin].array.F[kin*xysize+ii]*data.image[IDin].array.F[kin*xysize+ii];
+				}
+			}			
+		}
+		else
+		{
+			printf("ERROR: BIRCH scan ends up in npn-leaf\n");
+			exit(0);
+		}
+		
+		
+		
+		
+	}
+	
+	
+
+	for(k=0; k<NBCFmax; k++)
+	{
+		free(BirchCFarray[k].sum);
+		free(BirchCFarray[k].ssum);
+		free(BirchCFarray[k].children_index);
+	}
+	
+	free(BirchCFarray);
+	
+	
+	return 0;
+}

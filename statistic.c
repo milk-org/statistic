@@ -389,6 +389,37 @@ long statistic_BIRCH_clustering(const char *IDin_name, int B, double epsilon, co
 	long zsize;
 	
 	
+	// node definition:
+	
+	// leaf or not ?
+	//
+	// pointers to children - if leaf, these point to single samples
+	// pointer to parent
+	// level 
+	// 
+	// CF_N (1 if sample)
+	// CF_S
+	// CF_SS
+	//
+	
+	
+typedef struct
+{
+	int active;  // 1 if active, 0 otherwise
+	
+	int NBpt;    // number of points
+	float *sum;  // sum
+	float *ssum; // sum of squares
+
+	long level;   // 0 is root, and so on
+	int leaf;    // 1 if leaf, 0 if non-leaf
+	long parent_index;
+	long NBchildren;
+	long *children_index;
+} BIRCHCF;
+
+
+
 	
 	IDin = image_ID(IDin_name);
 	xsize = data.image[IDin].md[0].size[0];
@@ -399,11 +430,45 @@ long statistic_BIRCH_clustering(const char *IDin_name, int B, double epsilon, co
 	
 	BIRCHCF *BirchCFarray;
 	
-	long NBCFmax = zsize;
-	BirchCFarray = (BIRCHCF*) malloc(sizeof(BIRCHCF)*NBCFmax);
+	long NBnodeMax = zsize;
+	BirchCFarray = (BIRCHCF*) malloc(sizeof(BIRCHCF)*NBnodeMax);
+
+	// initialize
+	long node;
+	for(node=0; node<NBnodesMax; node++)
+	{
+		BirchCFarray[node].active = 0;
+		BirchCFarray[node].level = 0;
+		
+		BirchCFarray[node].NBpt = 0;
+		BirchCFarray[node].sum = NULL;
+		BirchCFarray[node].ssum = NULL;
+		
+		
+		BirchCFarray[node].leaf = 0;
+		BirchCFarray[node].parent_index = 0;
+		BirchCFarray[node].NBchildren = 0;
+		BirchCFarray[node].children_index = NULL;
+	}
+
+	node = 0;
+	
+	
+	
+	long NBnode = 1; // number of nodes
+
+
+	
+	// initialize to single node
+	node = 0;
+	BirchCFarray[node].N = 1;
+	
+	NBnode = 1;
+	
+	
 	
 	long k;
-	for(k=0; k<NBCFmax; k++)
+	for(k=0; k<NBCFmax; k++) // Insert sample into tree
 	{
 		BirchCFarray[k].active = 0;
 		BirchCFarray[k].NBpt = 0;

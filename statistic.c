@@ -402,7 +402,7 @@ long statistic_BIRCH_clustering(const char *IDin_name, int B, double epsilon, co
 	// CF_SS
 	//
 	
-	
+	/*
 typedef struct
 {
 	int active;  // 1 if active, 0 otherwise
@@ -417,10 +417,10 @@ typedef struct
 	long NBchildren;
 	long *children_index;
 } BIRCHCF;
+*/
 
 
-
-	
+	/*
 	IDin = image_ID(IDin_name);
 	xsize = data.image[IDin].md[0].size[0];
 	ysize = data.image[IDin].md[0].size[1];
@@ -435,7 +435,7 @@ typedef struct
 
 	// initialize
 	long node;
-	for(node=0; node<NBnodesMax; node++)
+	for(node=0; node<NBnodeMax; node++)
 	{
 		BirchCFarray[node].active = 0;
 		BirchCFarray[node].level = 0;
@@ -629,7 +629,7 @@ typedef struct
 	}
 	
 	free(BirchCFarray);
-	
+	*/
 	
 	return 0;
 }

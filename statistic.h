@@ -4,13 +4,6 @@
  * 
  * Functions provide statistical tools
  *  
- * @author  O. Guyon
- * @date    19 Jun 2017
- *
- * 
- * @bug No known bugs.
- * 
- * @see https://github.com/oguyon/Cfits
  */
 
 
@@ -20,7 +13,7 @@
 
 
 void __attribute__ ((constructor)) libinit_statistic();
-int_fast8_t init_statistic();
+errno_t init_statistic();
 
 
 

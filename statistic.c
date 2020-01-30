@@ -4,10 +4,6 @@
  *
  * Random numbers, photon noise
  *
- * @author  O. Guyon
- * @date    Aug 2, 2017
- *
- * @bug No known bugs.
  *
  */
 
@@ -70,29 +66,49 @@ typedef struct
 /* =============================================================================================== */
 /** @name CLI bindings */
 
-int_fast8_t statistic_putphnoise_cli()
+
+
+errno_t statistic_putphnoise_cli()
 {
- 
-  if(CLI_checkarg(1, 4)+CLI_checkarg(2, 3)==0)
+
+    if(
+        CLI_checkarg(1, 4) +
+        CLI_checkarg(2, 3)
+        == 0 )
     {
-      put_poisson_noise( data.cmdargtoken[1].val.string,  data.cmdargtoken[2].val.string);
-      return 0;
+        put_poisson_noise(
+            data.cmdargtoken[1].val.string,
+            data.cmdargtoken[2].val.string
+        );
+
+        return CLICMD_SUCCESS;
     }
-  else
-    return 1;
+    else {
+        return CLICMD_INVALID_ARG;
+    }
 }
 
 
-int_fast8_t statistic_putgaussnoise_cli()
+errno_t statistic_putgaussnoise_cli()
 {
- 
-  if(CLI_checkarg(1, 4)+CLI_checkarg(2, 3)+CLI_checkarg(3, 1)==0)
+
+    if(
+        CLI_checkarg(1, 4) +
+        CLI_checkarg(2, 3) +
+        CLI_checkarg(3, 1)
+        == 0 )
     {
-      put_gauss_noise( data.cmdargtoken[1].val.string,  data.cmdargtoken[2].val.string, data.cmdargtoken[3].val.numf);
-      return 0;
+        put_gauss_noise(
+            data.cmdargtoken[1].val.string,
+            data.cmdargtoken[2].val.string,
+            data.cmdargtoken[3].val.numf
+        );
+
+        return CLICMD_SUCCESS;
     }
-  else
-    return 1;
+    else {
+        return CLICMD_INVALID_ARG;
+    }
 }
 
 
@@ -123,29 +139,31 @@ void __attribute__ ((constructor)) libinit_statistic()
 
 
 
-int_fast8_t init_statistic()
+errno_t init_statistic()
 {
-  strcpy(data.cmd[data.NBcmd].key,"putphnoise");
-  strcpy(data.cmd[data.NBcmd].module,__FILE__);
-  data.cmd[data.NBcmd].fp = statistic_putphnoise_cli;
-  strcpy(data.cmd[data.NBcmd].info,"add photon noise to image");
-  strcpy(data.cmd[data.NBcmd].syntax,"input output");
-  strcpy(data.cmd[data.NBcmd].example,"putphnoise im0 im1");
-  strcpy(data.cmd[data.NBcmd].Ccall,"int put_poisson_noise(const char *ID_in_name, const char *ID_out_name)");
-  data.NBcmd++;
- 
-  strcpy(data.cmd[data.NBcmd].key,"putgaussnoise");
-  strcpy(data.cmd[data.NBcmd].module,__FILE__);
-  data.cmd[data.NBcmd].fp = statistic_putgaussnoise_cli;
-  strcpy(data.cmd[data.NBcmd].info,"add gaussian noise to image");
-  strcpy(data.cmd[data.NBcmd].syntax,"input output amplitude");
-  strcpy(data.cmd[data.NBcmd].example,"putgaussnoise im0 im1 0.2");
-  strcpy(data.cmd[data.NBcmd].Ccall,"long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, doule ampl)");
-  data.NBcmd++; 
- 
- // add atexit functions here
+    RegisterCLIcommand(
+        "putphnoise",
+        __FILE__,
+        statistic_putphnoise_cli,
+        "add photon noise to image",
+        "input output",
+        "putphnoise im0 im1",
+        "int put_poisson_noise(const char *ID_in_name, const char *ID_out_name)");
 
-  return 0;
+
+    RegisterCLIcommand(
+        "putgaussnoise",
+        __FILE__,
+        statistic_putgaussnoise_cli,
+        "add gaussian noise to image",
+        "input output amplitude",
+        "putgaussnoise im0 im1 0.2",
+        "long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, doule ampl)");
+
+
+    // add atexit functions here
+
+    return RETURN_SUCCESS;
 
 }
 
@@ -362,7 +380,6 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
 
 
 
-
 /**
  * ## Purpose
  *
@@ -382,11 +399,16 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
  *
  */
 
-long statistic_BIRCH_clustering(const char *IDin_name, int B, double epsilon, const char *IDout_name)
+long statistic_BIRCH_clustering(
+    __attribute__((unused)) const char *IDin_name,
+    __attribute__((unused)) int         B,
+    __attribute__((unused)) double      epsilon,
+    __attribute__((unused)) const char *IDout_name
+)
 {
-	long IDin;
-	long xsize, ysize;
-	long zsize;
+	//long IDin;
+	//long xsize, ysize;
+	//long zsize;
 	
 	
 	// node definition:

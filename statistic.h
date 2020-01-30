@@ -13,6 +13,7 @@
 
 
 void __attribute__ ((constructor)) libinit_statistic();
+
 errno_t init_statistic();
 
 

@@ -8,6 +8,27 @@
  */
 
 
+
+/* ================================================================== */
+/* ================================================================== */
+/*            MODULE INFO                                             */
+/* ================================================================== */
+/* ================================================================== */
+
+// module default short name
+// all CLI calls to this module functions will be <shortname>.<funcname>
+// if set to "", then calls use <funcname>
+#define MODULE_SHORTNAME_DEFAULT ""
+
+// Module short description 
+#define MODULE_DESCRIPTION       "Statistics functions and tools"
+
+// Application to which module belongs
+#define MODULE_APPLICATION       "milk"
+
+
+
+
 /* =============================================================================================== */
 /* =============================================================================================== */
 /*                                        HEADER FILES                                             */
@@ -36,11 +57,6 @@
 /* =============================================================================================== */
 /* =============================================================================================== */
 
-//extern DATA data;
-
-static int INITSTATUS_statistic = 0;
-
-
 
 typedef struct
 {
@@ -58,13 +74,24 @@ typedef struct
 
 
 
+/* ================================================================== */
+/* ================================================================== */
+/*            INITIALIZE LIBRARY                                      */
+/* ================================================================== */
+/* ================================================================== */
+
+// Module initialization macro in CLIcore.h
+// macro argument defines module name for bindings
+//
+INIT_MODULE_LIB(statistic)
 
 
-/* =============================================================================================== */
-/* =============================================================================================== */
-/*                           FUNCTIONS TIED TO COMMAND LINE INTERFACE (CLI)                        */
-/* =============================================================================================== */
-/* =============================================================================================== */
+/* ================================================================== */
+/* ================================================================== */
+/*            COMMAND LINE INTERFACE (CLI) FUNCTIONS                  */
+/* ================================================================== */
+/* ================================================================== */
+
 /** @name CLI bindings */
 
 
@@ -73,8 +100,8 @@ errno_t statistic_putphnoise_cli()
 {
 
     if(
-        CLI_checkarg(1, 4) +
-        CLI_checkarg(2, 3)
+        CLI_checkarg(1, CLIARG_IMG) +
+        CLI_checkarg(2, CLIARG_STR_NOT_IMG)
         == 0 )
     {
         put_poisson_noise(
@@ -94,9 +121,9 @@ errno_t statistic_putgaussnoise_cli()
 {
 
     if(
-        CLI_checkarg(1, 4) +
-        CLI_checkarg(2, 3) +
-        CLI_checkarg(3, 1)
+        CLI_checkarg(1, CLIARG_IMG) +
+        CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
+        CLI_checkarg(3, CLIARG_FLOAT)
         == 0 )
     {
         put_gauss_noise(
@@ -126,21 +153,10 @@ errno_t statistic_putgaussnoise_cli()
 /** @name Module initialization */
 
 
-void __attribute__ ((constructor)) libinit_statistic()
-{
-	if ( INITSTATUS_statistic == 0 )
-	{
-		init_statistic();
-		RegisterModule(__FILE__, "milk", "Statistics functions and tools");
-		INITSTATUS_statistic = 1;
-	}
-}
 
 
 
-
-
-errno_t init_statistic()
+static errno_t init_module_CLI()
 {
     RegisterCLIcommand(
         "putphnoise",

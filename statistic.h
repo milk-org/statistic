@@ -14,8 +14,6 @@
 
 void __attribute__ ((constructor)) libinit_statistic();
 
-errno_t init_statistic();
-
 
 
 /** @brief Uniform distribution from 0 to 1

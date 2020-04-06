@@ -1,9 +1,9 @@
 /**
  * @file    statistic.h
  * @brief   Function prototypes for statistic module
- * 
+ *
  * Functions provide statistical tools
- *  
+ *
  */
 
 
@@ -12,7 +12,7 @@
 #define _STATISTIC_H
 
 
-void __attribute__ ((constructor)) libinit_statistic();
+void __attribute__((constructor)) libinit_statistic();
 
 
 
@@ -28,13 +28,13 @@ double gauss();
 
 
 
-/** @brief truncated (-1/+1) sigma = 1 mean = 0 gaussian probability 
+/** @brief truncated (-1/+1) sigma = 1 mean = 0 gaussian probability
  */
 double gauss_trc();
 
 
 /** @brief Poisson distribution
- * 
+ *
  * @param mu   Distribution mean
  */
 long poisson(double mu);
@@ -59,7 +59,8 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name);
 
 /** @brief Apply Gaussian noise to image
  */
-long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double ampl);
+long put_gauss_noise(const char *ID_in_name, const char *ID_out_name,
+                     double ampl);
 
 
 

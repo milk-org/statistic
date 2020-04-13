@@ -18,7 +18,7 @@
 // module default short name
 // all CLI calls to this module functions will be <shortname>.<funcname>
 // if set to "", then calls use <funcname>
-#define MODULE_SHORTNAME_DEFAULT ""
+#define MODULE_SHORTNAME_DEFAULT "stat"
 
 // Module short description
 #define MODULE_DESCRIPTION       "Statistics functions and tools"
@@ -45,7 +45,6 @@
 #include "CommandLineInterface/CLIcore.h"
 
 
-#include "00CORE/00CORE.h"
 #include "COREMOD_memory/COREMOD_memory.h"
 #include "statistic/statistic.h"
 

@@ -1,12 +1,13 @@
 # library name
 set(LIBNAME "milkstatistic")
+set(SRCNAME "statistic")
 
 
 set(SOURCEFILES
-	statistic.c)
+	${SRCNAME}.c)
 
 set(INCLUDEFILES
-	statistic.h)
+	${SRCNAME}.h)
 
 
 # DEFAULT SETTINGS 
@@ -25,5 +26,5 @@ include_directories ("${PROJECT_SOURCE_DIR}/..")
 add_library(${LIBNAME} SHARED ${SOURCEFILES})
 
 install(TARGETS ${LIBNAME} DESTINATION lib)
-install(FILES ${INCLUDEFILES} DESTINATION include)
+install(FILES ${INCLUDEFILES} DESTINATION include/${SRCNAME})
 

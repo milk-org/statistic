@@ -23,8 +23,6 @@
 // Module short description
 #define MODULE_DESCRIPTION       "Statistics functions and tools"
 
-// Application to which module belongs
-#define MODULE_APPLICATION       "milk"
 
 
 

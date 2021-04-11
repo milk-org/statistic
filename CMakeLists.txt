@@ -2,6 +2,8 @@
 set(LIBNAME "milkstatistic")
 set(SRCNAME "statistic")
 
+message("")
+message(" SRCNAME = ${SRCNAME} -> LIBNAME = ${LIBNAME}")
 
 set(SOURCEFILES
 	${SRCNAME}.c)

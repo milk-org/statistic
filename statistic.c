@@ -7,8 +7,6 @@
  *
  */
 
-
-
 /* ================================================================== */
 /* ================================================================== */
 /*            MODULE INFO                                             */
@@ -21,11 +19,7 @@
 #define MODULE_SHORTNAME_DEFAULT "stat"
 
 // Module short description
-#define MODULE_DESCRIPTION       "Statistics functions and tools"
-
-
-
-
+#define MODULE_DESCRIPTION "Statistics functions and tools"
 
 /* =============================================================================================== */
 /* =============================================================================================== */
@@ -33,20 +27,17 @@
 /* =============================================================================================== */
 /* =============================================================================================== */
 
-#include <stdint.h>
+#include "CommandLineInterface/CLIcore.h"
+#include <gsl/gsl_randist.h>
 #include <math.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <gsl/gsl_randist.h>
-#include "CommandLineInterface/CLIcore.h"
-
 
 #include "COREMOD_memory/COREMOD_memory.h"
 #include "statistic/statistic.h"
-
-
 
 /* =============================================================================================== */
 /* =============================================================================================== */
@@ -54,22 +45,19 @@
 /* =============================================================================================== */
 /* =============================================================================================== */
 
-
 typedef struct
 {
-    int active;  // 1 if active, 0 otherwise
+    int active; // 1 if active, 0 otherwise
 
     int NBpt;    // number of points
     float *sum;  // sum
     float *ssum; // sum of squares
 
-    int leaf;    // 1 if leaf, 0 if non-leaf
+    int leaf; // 1 if leaf, 0 if non-leaf
     long parent_index;
     long NBchildren;
     long *children_index;
 } BIRCHCF;
-
-
 
 /* ================================================================== */
 /* ================================================================== */
@@ -82,7 +70,6 @@ typedef struct
 //
 INIT_MODULE_LIB(statistic)
 
-
 /* ================================================================== */
 /* ================================================================== */
 /*            COMMAND LINE INTERFACE (CLI) FUNCTIONS                  */
@@ -91,20 +78,12 @@ INIT_MODULE_LIB(statistic)
 
 /** @name CLI bindings */
 
-
-
 errno_t statistic_putphnoise_cli()
 {
 
-    if(
-        CLI_checkarg(1, CLIARG_IMG) +
-        CLI_checkarg(2, CLIARG_STR_NOT_IMG)
-        == 0)
+    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) == 0)
     {
-        put_poisson_noise(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.string
-        );
+        put_poisson_noise(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string);
 
         return CLICMD_SUCCESS;
     }
@@ -113,22 +92,13 @@ errno_t statistic_putphnoise_cli()
         return CLICMD_INVALID_ARG;
     }
 }
-
 
 errno_t statistic_putgaussnoise_cli()
 {
 
-    if(
-        CLI_checkarg(1, CLIARG_IMG) +
-        CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
-        CLI_checkarg(3, CLIARG_FLOAT)
-        == 0)
+    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) + CLI_checkarg(3, CLIARG_FLOAT) == 0)
     {
-        put_gauss_noise(
-            data.cmdargtoken[1].val.string,
-            data.cmdargtoken[2].val.string,
-            data.cmdargtoken[3].val.numf
-        );
+        put_gauss_noise(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string, data.cmdargtoken[3].val.numf);
 
         return CLICMD_SUCCESS;
     }
@@ -137,12 +107,6 @@ errno_t statistic_putgaussnoise_cli()
         return CLICMD_INVALID_ARG;
     }
 }
-
-
-
-
-
-
 
 /* =============================================================================================== */
 /* =============================================================================================== */
@@ -151,43 +115,19 @@ errno_t statistic_putgaussnoise_cli()
 /* =============================================================================================== */
 /** @name Module initialization */
 
-
-
-
-
 static errno_t init_module_CLI()
 {
-    RegisterCLIcommand(
-        "putphnoise",
-        __FILE__,
-        statistic_putphnoise_cli,
-        "add photon noise to image",
-        "input output",
-        "putphnoise im0 im1",
-        "int put_poisson_noise(const char *ID_in_name, const char *ID_out_name)");
+    RegisterCLIcommand("putphnoise", __FILE__, statistic_putphnoise_cli, "add photon noise to image", "input output",
+                       "putphnoise im0 im1", "int put_poisson_noise(const char *ID_in_name, const char *ID_out_name)");
 
-
-    RegisterCLIcommand(
-        "putgaussnoise",
-        __FILE__,
-        statistic_putgaussnoise_cli,
-        "add gaussian noise to image",
-        "input output amplitude",
-        "putgaussnoise im0 im1 0.2",
-        "long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, doule ampl)");
-
+    RegisterCLIcommand("putgaussnoise", __FILE__, statistic_putgaussnoise_cli, "add gaussian noise to image",
+                       "input output amplitude", "putgaussnoise im0 im1 0.2",
+                       "long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, doule ampl)");
 
     // add atexit functions here
 
     return RETURN_SUCCESS;
-
 }
-
-
-
-
-
-
 
 /* =============================================================================================== */
 /* =============================================================================================== */
@@ -196,19 +136,15 @@ static errno_t init_module_CLI()
 /* =============================================================================================== */
 /** @name STATISTIC functions */
 
-
 double ran1()
 {
     double value;
 
     value = data.INVRANDMAX * rand();
-// gsl_rng_uniform (data.rndgen);// data.INVRANDMAX*rand();
+    // gsl_rng_uniform (data.rndgen);// data.INVRANDMAX*rand();
 
-    return(value);
+    return (value);
 }
-
-
-
 
 double gauss()
 {
@@ -219,31 +155,22 @@ double gauss()
     // return(gsl_ran_gaussian_ziggurat (data.rndgen,1.0));
 
     // default
-    return(gsl_ran_gaussian(data.rndgen, 1.0));
+    return (gsl_ran_gaussian(data.rndgen, 1.0));
 }
-
-
 
 double gauss_trc()
 {
     double value;
 
     value = gauss();
-    while(fabs(value) > 1.0)
+    while (fabs(value) > 1.0)
     {
         value = gauss();
     }
-    return(value);
+    return (value);
 }
 
-
-
-
-long poisson(double mu)
-{
-
-    return(gsl_ran_poisson(data.rndgen, (double) mu));
-}
+long poisson(double mu) { return (gsl_ran_poisson(data.rndgen, (double)mu)); }
 
 double cfits_gammaln(double xx)
 {
@@ -268,13 +195,13 @@ double cfits_gammaln(double xx)
     y = x;
     tmp = x + 5.5;
     tmp = (x + 0.5) * log(tmp) - tmp;
-    for(j = 0; j < 6; j++)
+    for (j = 0; j < 6; j++)
     {
         y = y + 1;
         ser = ser + cof[j] / y;
     }
     result = tmp + log(stp * ser / x);
-    return(result);
+    return (result);
 }
 
 double fast_poisson(double mu)
@@ -284,16 +211,13 @@ double fast_poisson(double mu)
 
     em = 0;
     em = (double)((long long)(mu + gauss() * sqrt(mu)));
-    if(em < 0.0)
+    if (em < 0.0)
     {
         em = 0.0;
     }
 
-    return(em);
+    return (em);
 }
-
-
-
 
 // better_poisson seems to give a very weird value every once in a while
 // probability this happens is ~1e-8 to 1e-9
@@ -306,9 +230,9 @@ double better_poisson(double mu)
     inv_randmax = 1.0 / RAND_MAX;
 
     em = 0;
-    if(mu < 100)
+    if (mu < 100)
     {
-        em = (double) poisson(mu);
+        em = (double)poisson(mu);
     }
     else
     {
@@ -319,34 +243,32 @@ double better_poisson(double mu)
         logmu = log(mu);
         g = mu * logmu - cfits_gammaln(mu + 1);
 
-
         y = tan(PI * (inv_randmax * rand()));
         em = sq * y + mu;
-        while(em < 0)
+        while (em < 0)
         {
             y = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
         }
-        em = (int) em;
+        em = (int)em;
         t = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
 
-        while((inv_randmax * rand()) > t)
+        while ((inv_randmax * rand()) > t)
         {
             y = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
-            while(em < 0)
+            while (em < 0)
             {
                 y = tan(PI * (inv_randmax * rand()));
                 em = sq * y + mu;
             }
-            em = (long) em;
+            em = (long)em;
             t = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
         }
     }
 
-    return(1.0 * em);
+    return (1.0 * em);
 }
-
 
 long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
 {
@@ -360,7 +282,7 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     ID_in = image_ID(ID_in_name);
     naxis = data.image[ID_in].md[0].naxis;
     nelements = 1;
-    for(i = 0; i < naxis; i++)
+    for (i = 0; i < naxis; i++)
     {
         nelements *= data.image[ID_in].md[0].size[i];
     }
@@ -370,18 +292,15 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     ID_out = image_ID(ID_out_name);
     //  srand(time(NULL));
 
-    for(ii = 0; ii < nelements; ii++)
+    for (ii = 0; ii < nelements; ii++)
     {
         data.image[ID_out].array.F[ii] = poisson(data.image[ID_in].array.F[ii]);
     }
 
-    return(ID_out);
+    return (ID_out);
 }
 
-
-
-long put_gauss_noise(const char *ID_in_name, const char *ID_out_name,
-                     double ampl)
+long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double ampl)
 {
     long ID_in;
     long ID_out;
@@ -393,7 +312,7 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name,
     ID_in = image_ID(ID_in_name);
     naxis = data.image[ID_in].md[0].naxis;
     nelements = 1;
-    for(i = 0; i < naxis; i++)
+    for (i = 0; i < naxis; i++)
     {
         nelements *= data.image[ID_in].md[0].size[i];
     }
@@ -403,16 +322,13 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name,
     ID_out = image_ID(ID_out_name);
     //  srand(time(NULL));
 
-    for(ii = 0; ii < nelements; ii++)
+    for (ii = 0; ii < nelements; ii++)
     {
-        data.image[ID_out].array.F[ii] = data.image[ID_in].array.F[ii] + ampl *
-                                         gauss();
+        data.image[ID_out].array.F[ii] = data.image[ID_in].array.F[ii] + ampl * gauss();
     }
 
-    return(ID_out);
+    return (ID_out);
 }
-
-
 
 /**
  * ## Purpose
@@ -433,17 +349,12 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name,
  *
  */
 
-long statistic_BIRCH_clustering(
-    __attribute__((unused)) const char *IDin_name,
-    __attribute__((unused)) int         B,
-    __attribute__((unused)) double      epsilon,
-    __attribute__((unused)) const char *IDout_name
-)
+long statistic_BIRCH_clustering(__attribute__((unused)) const char *IDin_name, __attribute__((unused)) int B,
+                                __attribute__((unused)) double epsilon, __attribute__((unused)) const char *IDout_name)
 {
     //long IDin;
     //long xsize, ysize;
     //long zsize;
-
 
     // node definition:
 
@@ -474,7 +385,6 @@ long statistic_BIRCH_clustering(
     long *children_index;
     } BIRCHCF;
     */
-
 
     /*
     IDin = image_ID(IDin_name);

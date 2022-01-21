@@ -49,13 +49,13 @@ typedef struct
 {
     int active; // 1 if active, 0 otherwise
 
-    int NBpt;    // number of points
+    int    NBpt; // number of points
     float *sum;  // sum
     float *ssum; // sum of squares
 
-    int leaf; // 1 if leaf, 0 if non-leaf
-    long parent_index;
-    long NBchildren;
+    int   leaf; // 1 if leaf, 0 if non-leaf
+    long  parent_index;
+    long  NBchildren;
     long *children_index;
 } BIRCHCF;
 
@@ -83,7 +83,8 @@ errno_t statistic_putphnoise_cli()
 
     if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) == 0)
     {
-        put_poisson_noise(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string);
+        put_poisson_noise(data.cmdargtoken[1].val.string,
+                          data.cmdargtoken[2].val.string);
 
         return CLICMD_SUCCESS;
     }
@@ -96,9 +97,13 @@ errno_t statistic_putphnoise_cli()
 errno_t statistic_putgaussnoise_cli()
 {
 
-    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) + CLI_checkarg(3, CLIARG_FLOAT) == 0)
+    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
+            CLI_checkarg(3, CLIARG_FLOAT) ==
+        0)
     {
-        put_gauss_noise(data.cmdargtoken[1].val.string, data.cmdargtoken[2].val.string, data.cmdargtoken[3].val.numf);
+        put_gauss_noise(data.cmdargtoken[1].val.string,
+                        data.cmdargtoken[2].val.string,
+                        data.cmdargtoken[3].val.numf);
 
         return CLICMD_SUCCESS;
     }
@@ -117,12 +122,23 @@ errno_t statistic_putgaussnoise_cli()
 
 static errno_t init_module_CLI()
 {
-    RegisterCLIcommand("putphnoise", __FILE__, statistic_putphnoise_cli, "add photon noise to image", "input output",
-                       "putphnoise im0 im1", "int put_poisson_noise(const char *ID_in_name, const char *ID_out_name)");
+    RegisterCLIcommand("putphnoise",
+                       __FILE__,
+                       statistic_putphnoise_cli,
+                       "add photon noise to image",
+                       "input output",
+                       "putphnoise im0 im1",
+                       "int put_poisson_noise(const char *ID_in_name, const "
+                       "char *ID_out_name)");
 
-    RegisterCLIcommand("putgaussnoise", __FILE__, statistic_putgaussnoise_cli, "add gaussian noise to image",
-                       "input output amplitude", "putgaussnoise im0 im1 0.2",
-                       "long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, doule ampl)");
+    RegisterCLIcommand("putgaussnoise",
+                       __FILE__,
+                       statistic_putgaussnoise_cli,
+                       "add gaussian noise to image",
+                       "input output amplitude",
+                       "putgaussnoise im0 im1 0.2",
+                       "long put_gauss_noise(const char *ID_in_name, const "
+                       "char *ID_out_name, doule ampl)");
 
     // add atexit functions here
 
@@ -170,12 +186,15 @@ double gauss_trc()
     return (value);
 }
 
-long poisson(double mu) { return (gsl_ran_poisson(data.rndgen, (double)mu)); }
+long poisson(double mu)
+{
+    return (gsl_ran_poisson(data.rndgen, (double) mu));
+}
 
 double cfits_gammaln(double xx)
 {
     /* ln of the Gamma function */
-    int j;
+    int    j;
     double cof[6];
     double stp;
     double ser;
@@ -188,16 +207,16 @@ double cfits_gammaln(double xx)
     cof[3] = -1.231739572450155;
     cof[4] = 0.001208650973866179;
     cof[5] = 0.000005395239384953;
-    stp = 2.5066282746310005;
-    ser = 1.000000000190015;
+    stp    = 2.5066282746310005;
+    ser    = 1.000000000190015;
 
-    x = xx;
-    y = x;
+    x   = xx;
+    y   = x;
     tmp = x + 5.5;
     tmp = (x + 0.5) * log(tmp) - tmp;
     for (j = 0; j < 6; j++)
     {
-        y = y + 1;
+        y   = y + 1;
         ser = ser + cof[j] / y;
     }
     result = tmp + log(stp * ser / x);
@@ -210,7 +229,7 @@ double fast_poisson(double mu)
     double em;
 
     em = 0;
-    em = (double)((long long)(mu + gauss() * sqrt(mu)));
+    em = (double) ((long long) (mu + gauss() * sqrt(mu)));
     if (em < 0.0)
     {
         em = 0.0;
@@ -232,37 +251,37 @@ double better_poisson(double mu)
     em = 0;
     if (mu < 100)
     {
-        em = (double)poisson(mu);
+        em = (double) poisson(mu);
     }
     else
     {
         double logmu;
         double sq, g, y, t;
 
-        sq = sqrt(2 * mu);
+        sq    = sqrt(2 * mu);
         logmu = log(mu);
-        g = mu * logmu - cfits_gammaln(mu + 1);
+        g     = mu * logmu - cfits_gammaln(mu + 1);
 
-        y = tan(PI * (inv_randmax * rand()));
+        y  = tan(PI * (inv_randmax * rand()));
         em = sq * y + mu;
         while (em < 0)
         {
-            y = tan(PI * (inv_randmax * rand()));
+            y  = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
         }
-        em = (int)em;
-        t = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
+        em = (int) em;
+        t  = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
 
         while ((inv_randmax * rand()) > t)
         {
-            y = tan(PI * (inv_randmax * rand()));
+            y  = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
             while (em < 0)
             {
-                y = tan(PI * (inv_randmax * rand()));
+                y  = tan(PI * (inv_randmax * rand()));
                 em = sq * y + mu;
             }
-            em = (long)em;
+            em = (long) em;
             t = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
         }
     }
@@ -279,8 +298,8 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     long naxis;
     long i;
 
-    ID_in = image_ID(ID_in_name);
-    naxis = data.image[ID_in].md[0].naxis;
+    ID_in     = image_ID(ID_in_name);
+    naxis     = data.image[ID_in].md[0].naxis;
     nelements = 1;
     for (i = 0; i < naxis; i++)
     {
@@ -300,7 +319,9 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     return (ID_out);
 }
 
-long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double ampl)
+long put_gauss_noise(const char *ID_in_name,
+                     const char *ID_out_name,
+                     double      ampl)
 {
     long ID_in;
     long ID_out;
@@ -309,8 +330,8 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
     long naxis;
     long i;
 
-    ID_in = image_ID(ID_in_name);
-    naxis = data.image[ID_in].md[0].naxis;
+    ID_in     = image_ID(ID_in_name);
+    naxis     = data.image[ID_in].md[0].naxis;
     nelements = 1;
     for (i = 0; i < naxis; i++)
     {
@@ -324,7 +345,8 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
 
     for (ii = 0; ii < nelements; ii++)
     {
-        data.image[ID_out].array.F[ii] = data.image[ID_in].array.F[ii] + ampl * gauss();
+        data.image[ID_out].array.F[ii] =
+            data.image[ID_in].array.F[ii] + ampl * gauss();
     }
 
     return (ID_out);
@@ -349,8 +371,10 @@ long put_gauss_noise(const char *ID_in_name, const char *ID_out_name, double amp
  *
  */
 
-long statistic_BIRCH_clustering(__attribute__((unused)) const char *IDin_name, __attribute__((unused)) int B,
-                                __attribute__((unused)) double epsilon, __attribute__((unused)) const char *IDout_name)
+long statistic_BIRCH_clustering(__attribute__((unused)) const char *IDin_name,
+                                __attribute__((unused)) int         B,
+                                __attribute__((unused)) double      epsilon,
+                                __attribute__((unused)) const char *IDout_name)
 {
     //long IDin;
     //long xsize, ysize;

@@ -81,7 +81,7 @@ INIT_MODULE_LIB(statistic)
 errno_t statistic_putphnoise_cli()
 {
 
-    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) == 0)
+    if(CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) == 0)
     {
         put_poisson_noise(data.cmdargtoken[1].val.string,
                           data.cmdargtoken[2].val.string);
@@ -97,9 +97,9 @@ errno_t statistic_putphnoise_cli()
 errno_t statistic_putgaussnoise_cli()
 {
 
-    if (CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
+    if(CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
             CLI_checkarg(3, CLIARG_FLOAT) ==
-        0)
+            0)
     {
         put_gauss_noise(data.cmdargtoken[1].val.string,
                         data.cmdargtoken[2].val.string,
@@ -179,7 +179,7 @@ double gauss_trc()
     double value;
 
     value = gauss();
-    while (fabs(value) > 1.0)
+    while(fabs(value) > 1.0)
     {
         value = gauss();
     }
@@ -214,7 +214,7 @@ double cfits_gammaln(double xx)
     y   = x;
     tmp = x + 5.5;
     tmp = (x + 0.5) * log(tmp) - tmp;
-    for (j = 0; j < 6; j++)
+    for(j = 0; j < 6; j++)
     {
         y   = y + 1;
         ser = ser + cof[j] / y;
@@ -229,8 +229,8 @@ double fast_poisson(double mu)
     double em;
 
     em = 0;
-    em = (double) ((long long) (mu + gauss() * sqrt(mu)));
-    if (em < 0.0)
+    em = (double)((long long)(mu + gauss() * sqrt(mu)));
+    if(em < 0.0)
     {
         em = 0.0;
     }
@@ -249,7 +249,7 @@ double better_poisson(double mu)
     inv_randmax = 1.0 / RAND_MAX;
 
     em = 0;
-    if (mu < 100)
+    if(mu < 100)
     {
         em = (double) poisson(mu);
     }
@@ -264,7 +264,7 @@ double better_poisson(double mu)
 
         y  = tan(PI * (inv_randmax * rand()));
         em = sq * y + mu;
-        while (em < 0)
+        while(em < 0)
         {
             y  = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
@@ -272,11 +272,11 @@ double better_poisson(double mu)
         em = (int) em;
         t  = 0.9 * (1 + y * y) * exp(em * logmu - cfits_gammaln(em + 1) - g);
 
-        while ((inv_randmax * rand()) > t)
+        while((inv_randmax * rand()) > t)
         {
             y  = tan(PI * (inv_randmax * rand()));
             em = sq * y + mu;
-            while (em < 0)
+            while(em < 0)
             {
                 y  = tan(PI * (inv_randmax * rand()));
                 em = sq * y + mu;
@@ -301,7 +301,7 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     ID_in     = image_ID(ID_in_name);
     naxis     = data.image[ID_in].md[0].naxis;
     nelements = 1;
-    for (i = 0; i < naxis; i++)
+    for(i = 0; i < naxis; i++)
     {
         nelements *= data.image[ID_in].md[0].size[i];
     }
@@ -311,7 +311,7 @@ long put_poisson_noise(const char *ID_in_name, const char *ID_out_name)
     ID_out = image_ID(ID_out_name);
     //  srand(time(NULL));
 
-    for (ii = 0; ii < nelements; ii++)
+    for(ii = 0; ii < nelements; ii++)
     {
         data.image[ID_out].array.F[ii] = poisson(data.image[ID_in].array.F[ii]);
     }
@@ -333,7 +333,7 @@ long put_gauss_noise(const char *ID_in_name,
     ID_in     = image_ID(ID_in_name);
     naxis     = data.image[ID_in].md[0].naxis;
     nelements = 1;
-    for (i = 0; i < naxis; i++)
+    for(i = 0; i < naxis; i++)
     {
         nelements *= data.image[ID_in].md[0].size[i];
     }
@@ -343,7 +343,7 @@ long put_gauss_noise(const char *ID_in_name,
     ID_out = image_ID(ID_out_name);
     //  srand(time(NULL));
 
-    for (ii = 0; ii < nelements; ii++)
+    for(ii = 0; ii < nelements; ii++)
     {
         data.image[ID_out].array.F[ii] =
             data.image[ID_in].array.F[ii] + ampl * gauss();

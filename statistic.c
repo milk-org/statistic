@@ -98,7 +98,7 @@ errno_t statistic_putgaussnoise_cli()
 {
 
     if(CLI_checkarg(1, CLIARG_IMG) + CLI_checkarg(2, CLIARG_STR_NOT_IMG) +
-            CLI_checkarg(3, CLIARG_FLOAT) ==
+            CLI_checkarg(3, CLIARG_FLOAT64) ==
             0)
     {
         put_gauss_noise(data.cmdargtoken[1].val.string,
